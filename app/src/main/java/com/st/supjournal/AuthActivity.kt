@@ -4,6 +4,8 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.st.supjournal.databinding.ActivityAuthBinding
+import com.st.supjournal.network.ApiViewModel
+
 
 class AuthActivity : AppCompatActivity() {
 
@@ -21,11 +23,15 @@ class AuthActivity : AppCompatActivity() {
         Получаем доступ к внутреннему хранилищу и забираем из него JWT токен
          */
         sharedPref = getSharedPreferences("App_Pref", MODE_PRIVATE)
-        jwToken = sharedPref.getString("JWT", "000").toString()
+        jwToken = sharedPref.getString("JWT", "").toString()
 
+        /*
+        Обрабатываем нажатие клавиши войти, выполняет http запрос на сервер
+         */
         binding.btn.setOnClickListener {
-            binding.test.text = jwToken.toString()
+            val login = binding.editLogin.text.toString()
+            val pass = binding.editPass.text.toString()
+            ApiViewModel().apiAuth(login, pass, binding)
         }
-
     }
 }
