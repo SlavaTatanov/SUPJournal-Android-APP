@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SUPJournal</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="input_error">Fill in the field</string>
 </resources>
