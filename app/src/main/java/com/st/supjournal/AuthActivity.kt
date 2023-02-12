@@ -1,13 +1,16 @@
 package com.st.supjournal
 
 import android.app.Application
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.st.supjournal.constance.CONSTANCE
 import com.st.supjournal.databinding.ActivityAuthBinding
 import com.st.supjournal.network.ApiService
 import com.st.supjournal.network.AuthBody
@@ -36,17 +39,28 @@ class AuthActivity : AppCompatActivity() {
         если он есть
          */
         sharedPref = getSharedPreferences("App_Pref", MODE_PRIVATE)
-        jwToken = sharedPref.getString("JWT", "").toString()
+        jwToken = sharedPref.getString(CONSTANCE.JWT, "").toString()
 
         /*
         Обрабатываем нажатие клавиши войти, выполняет http запрос на сервер
          */
-        binding.btn.setOnClickListener {
+        binding.signIn.setOnClickListener {
             authViewModel.apiAuth()
         }
-        binding.test.text = jwToken
+
+        /**
+         * Наблюдаем за liveData
+         */
+        authViewModel.authStatus.observe(this) {
+            if (authViewModel.authStatus.value == true) {
+                startMain()
+            }
+        }
     }
 
+    /**
+     * Запускаем основную активность
+     */
     private fun startMain(){
         intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
@@ -58,16 +72,21 @@ class AuthActivity : AppCompatActivity() {
  */
 class AuthViewModel(application: Application): AndroidViewModel(application) {
 
-    lateinit var binding: ActivityAuthBinding
+    private lateinit var binding: ActivityAuthBinding
+    private val app = getApplication<Application?>()
+    var authStatus = MutableLiveData(false)
 
     fun init (binding: ActivityAuthBinding) {
-       this.binding = binding
+        this.binding = binding
     }
 
     /**
-     * Запрос к базе данных (Передаем логин пароль)
+     * Запрос к базе данных (Передаем логин пароль). Проверяем ответ.
+     * Если ок -> пишем токент в шаредпреф, пишем в лайфдату успешную авторизацию
+     * (активити видя это запускает основное).
+     * Если не ок -> сообщаем юзеру что не так.
      */
-    fun apiAuth() {
+    fun apiAuth(){
         if (inputCheck()) {
             var res: AuthResponse
             val login = binding.editLogin.text.toString()
@@ -75,10 +94,15 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
             viewModelScope.launch {
                 try {
                     res = ApiService.retrofitService.auth(AuthBody(login, pass)).body()!!
-                    if (res.msg == "ok") {
-                        binding.test.text = res.token
+                    if (res.status == "ok") {
+                        addDataSharedPref(CONSTANCE.JWT, res.token.toString())
+                        authStatus.value = true
                     } else {
                         binding.test.text = res.msg
+                        when (res.status) {
+                            "incorrect_user" -> binding.editLogin.error = res.msg
+                            "incorrect_password" -> binding.editPass.error = res.msg
+                        }
                     }
 
                 } catch (e: ConnectException) {
@@ -87,7 +111,6 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
                 }
             }
         }
-
     }
 
     /**
@@ -103,5 +126,14 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
             }
         return flag
     }
-}
 
+    /**
+     * Добавляет данные в SharedPref
+     */
+    private fun addDataSharedPref(key: String, value: String) {
+        val sharedPref = app.getSharedPreferences("App_Pref", MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
+}

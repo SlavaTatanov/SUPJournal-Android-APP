@@ -31,8 +31,10 @@ data class AuthResponse(
     var msg: String?
 )
 
-
 interface ApiServiceService {
+    /**
+     * Передает на сервер логин и пароль, возвращает токен и данные юзера, либо сообщение об ошибке
+     */
     @POST("api/mobile/auth")
     suspend fun auth (@Body authBody: AuthBody): Response<AuthResponse>
 }

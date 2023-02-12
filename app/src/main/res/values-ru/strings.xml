@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SUPJournal</string>
+    <string name="connection_error">Ошибка соединения</string>
+    <string name="input_error">Заполните поле</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="sign_in">Войти</string>
+    <string name="register">Регистрация</string>
+</resources>

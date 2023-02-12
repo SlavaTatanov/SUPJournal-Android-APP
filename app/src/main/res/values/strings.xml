@@ -2,4 +2,6 @@
     <string name="app_name">SUPJournal</string>
     <string name="connection_error">Connection Error</string>
     <string name="input_error">Fill in the field</string>
+    <string name="sign_in">sign in</string>
+    <string name="register">register</string>
 </resources>
