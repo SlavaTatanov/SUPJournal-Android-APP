@@ -6,16 +6,19 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.st.supjournal.constance.CONSTANCE
 import com.st.supjournal.databinding.ActivityAuthBinding
 import com.st.supjournal.network.ApiService
 import com.st.supjournal.network.AuthBody
 import com.st.supjournal.network.AuthResponse
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.net.ConnectException
 
 
@@ -101,24 +104,34 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
             var res: AuthResponse
             val login = binding.editLogin.text.toString()
             val pass = binding.editPass.text.toString()
+            var resp: Response<AuthResponse>
             viewModelScope.launch {
                 try {
-                    res = ApiService.retrofitService.auth(AuthBody(login, pass)).body()!!
-                    if (res.status == "ok") {
+                    resp = ApiService.retrofitService.auth(AuthBody(login, pass))
+                    Log.d("API", "${resp.code()}")
+                    if (resp.code() == 200) {
+                        /*
+                        Запрос прошел успешно, вернулся статус 200
+                        Берем из Body токен и записываем в sharedPref
+                         */
+                        res = ApiService.retrofitService.auth(AuthBody(login, pass)).body()!!
                         addDataSharedPref(CONSTANCE.JWT, res.token.toString())
                         authStatus.value = true
-                    } else {
-                        binding.test.text = res.msg
-                        when (res.status) {
-                            "incorrect_user" -> binding.editLogin.error = res.msg
-                            "incorrect_password" -> binding.editPass.error = res.msg
-                        }
+                    } else if (resp.code() == 401) {
+                        /*
+                        Случилась ошибка логина или пароля, прилетел статус 401
+                        Парсим JSON (вручную??), из errorBody выясняем логин или пароль invalid
+                        Сообщаем юзеру в UI что не так
+                         */
+                        res = Gson().fromJson(resp.errorBody()!!.charStream(),
+                                              AuthResponse::class.java)
+                        authErrorUIChange(res.status.toString())
                     }
-
                 } catch (e: ConnectException) {
+                    // Ловим ошибку отсутствия соединения с сервером
                     val err = getApplication<Application?>().getString(R.string.connection_error)
                     binding.test.text = err
-                }
+                } 
             }
         }
     }
@@ -145,5 +158,23 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
         val editor = sharedPref.edit()
         editor.putString(key, value)
         editor.apply()
+    }
+
+    /**
+     * Добавляем сообщения об ошибках в UI
+     */
+    private fun authErrorUIChange(err: String) {
+        var msg= ""
+        when (err) {
+            "incorrect_user" -> {
+                msg = getApplication<Application>().getString(R.string.incorrect_user)
+                binding.editLogin.error = msg
+            }
+            "incorrect_password" -> {
+                msg = getApplication<Application>().getString(R.string.incorrect_pass)
+                binding.editPass.error = msg
+            }
+        }
+        binding.test.text = msg
     }
 }

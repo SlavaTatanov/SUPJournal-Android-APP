@@ -10,4 +10,6 @@
     <string name="repeat_pass">Повторите пароль</string>
     <string name="e_mail">e-mail</string>
     <string name="back">Назад</string>
+    <string name="incorrect_user">Пользователь не существует</string>
+    <string name="incorrect_pass">Неверный пароль</string>
 </resources>
