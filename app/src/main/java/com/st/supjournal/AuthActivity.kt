@@ -48,6 +48,9 @@ class AuthActivity : AppCompatActivity() {
             authViewModel.apiAuth()
         }
 
+        // Слушатель кнопки регистрация
+        binding.register.setOnClickListener { startRegister() }
+
         /**
          * Наблюдаем за liveData
          */
@@ -63,6 +66,13 @@ class AuthActivity : AppCompatActivity() {
      */
     private fun startMain(){
         intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
+    /**
+     * Запускаем активность регистрации
+     */
+    private fun startRegister(){
+        intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }
 }

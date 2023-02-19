@@ -4,4 +4,7 @@
     <string name="input_error">Fill in the field</string>
     <string name="sign_in">sign in</string>
     <string name="register">register</string>
+    <string name="repeat_pass">repeat password</string>
+    <string name="e_mail">e-mail</string>
+    <string name="back">back</string>
 </resources>
