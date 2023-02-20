@@ -10,7 +10,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import com.st.supjournal.constance.CONSTANCE
 import com.st.supjournal.databinding.ActivityAuthBinding
 import com.st.supjournal.network.ApiService
@@ -110,10 +109,14 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
                     if (resp.code() == 200) {
                         /*
                         Запрос прошел успешно, вернулся статус 200
-                        Берем из Body токен и записываем в sharedPref
+                        Берем из Body токен, имя пользователя, id и записываем в sharedPref
+                        После чего переводим статус авторизации в true
+                        что запускает основное активити
                          */
                         res = resp.body()!!
                         addDataSharedPref(CONSTANCE.JWT, res.token.toString())
+                        addDataSharedPref(CONSTANCE.user, res.user.toString())
+                        addDataSharedPref(CONSTANCE.user_id, res.user_id.toString())
                         authStatus.value = true
                     } else if (resp.code() == 401) {
                         /*

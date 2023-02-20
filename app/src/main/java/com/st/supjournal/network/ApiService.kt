@@ -25,10 +25,10 @@ data class AuthBody(
 data class AuthResponse(
     @SerializedName("token")
     var token: String?,
-    @SerializedName("status")
-    var status: String?,
-    @SerializedName("msg")
-    var msg: String?
+    @SerializedName("user")
+    var user: String?,
+    @SerializedName("user_id")
+    var user_id: String?
 )
 
 interface ApiServiceService {
