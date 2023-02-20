@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -108,24 +107,22 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
             viewModelScope.launch {
                 try {
                     resp = ApiService.retrofitService.auth(AuthBody(login, pass))
-                    Log.d("API", "${resp.code()}")
                     if (resp.code() == 200) {
                         /*
                         Запрос прошел успешно, вернулся статус 200
                         Берем из Body токен и записываем в sharedPref
                          */
-                        res = ApiService.retrofitService.auth(AuthBody(login, pass)).body()!!
+                        res = resp.body()!!
                         addDataSharedPref(CONSTANCE.JWT, res.token.toString())
                         authStatus.value = true
                     } else if (resp.code() == 401) {
                         /*
                         Случилась ошибка логина или пароля, прилетел статус 401
-                        Парсим JSON (вручную??), из errorBody выясняем логин или пароль invalid
-                        Сообщаем юзеру в UI что не так
+                        Смотрим заголовок X-Error-Message (в нем информация что не верно)
+                        Сообщаем пользователю в UI
                          */
-                        res = Gson().fromJson(resp.errorBody()!!.charStream(),
-                                              AuthResponse::class.java)
-                        authErrorUIChange(res.status.toString())
+                        val errAuth = resp.headers().get("X-Error-Message")
+                        authErrorUIChange(errAuth)
                     }
                 } catch (e: ConnectException) {
                     // Ловим ошибку отсутствия соединения с сервером
@@ -163,7 +160,7 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
     /**
      * Добавляем сообщения об ошибках в UI
      */
-    private fun authErrorUIChange(err: String) {
+    private fun authErrorUIChange(err: String?) {
         var msg= ""
         when (err) {
             "incorrect_user" -> {
