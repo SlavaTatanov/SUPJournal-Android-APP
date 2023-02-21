@@ -15,20 +15,28 @@ private val retrofit = Retrofit.Builder().baseUrl(BASE_URL)
     .addConverterFactory(GsonConverterFactory.create())
     .build()
 
-data class AuthBody(
-    @SerializedName("user")
-    val login: String,
-    @SerializedName("pass_")
+data class AuthReq(
+    val user: String,
     val pass_: String
 )
 
+data class RegisterReq(
+    val user: String,
+    val pass_: String,
+    val e_mail: String
+)
+
 data class AuthResponse(
-    @SerializedName("token")
-    var token: String?,
-    @SerializedName("user")
-    var user: String?,
-    @SerializedName("user_id")
-    var user_id: String?
+    val token: String?,
+    val user: String?,
+    val user_id: String?
+)
+
+data class RegisterResponse(
+    val token: String?,
+    val user: String?,
+    val user_id: String?,
+    val msg: String?
 )
 
 interface ApiServiceService {
@@ -36,7 +44,13 @@ interface ApiServiceService {
      * Передает на сервер логин и пароль, возвращает токен и данные юзера, либо сообщение об ошибке
      */
     @POST("api/mobile/auth")
-    suspend fun auth (@Body authBody: AuthBody): Response<AuthResponse>
+    suspend fun auth (@Body authReq: AuthReq): Response<AuthResponse>
+
+    /**
+     * Запрос на регистрацию
+     */
+    @POST("api/mobile/register")
+    suspend fun register(@Body registerReq: RegisterReq): Response<RegisterResponse>
 }
 
 object ApiService {

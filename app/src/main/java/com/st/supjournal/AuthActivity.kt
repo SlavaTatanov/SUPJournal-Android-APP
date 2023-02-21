@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.st.supjournal.constance.CONSTANCE
 import com.st.supjournal.databinding.ActivityAuthBinding
 import com.st.supjournal.network.ApiService
-import com.st.supjournal.network.AuthBody
+import com.st.supjournal.network.AuthReq
 import com.st.supjournal.network.AuthResponse
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -32,6 +32,7 @@ class AuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Запускаем ViewModel
         authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
         authViewModel.init(binding)
 
@@ -105,7 +106,7 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
             var resp: Response<AuthResponse>
             viewModelScope.launch {
                 try {
-                    resp = ApiService.retrofitService.auth(AuthBody(login, pass))
+                    resp = ApiService.retrofitService.auth(AuthReq(login, pass))
                     if (resp.code() == 200) {
                         /*
                         Запрос прошел успешно, вернулся статус 200

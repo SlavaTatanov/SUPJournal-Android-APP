@@ -9,4 +9,5 @@
     <string name="back">back</string>
     <string name="incorrect_user">incorrect user</string>
     <string name="incorrect_pass">incorrect password</string>
+    <string name="password_not_equal">password mismatch</string>
 </resources>
