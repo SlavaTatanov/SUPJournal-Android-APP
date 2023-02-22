@@ -49,26 +49,43 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
      * Запрос регистрации на серевер, отправляем логин, пароль и почту
      */
     fun regApi(){
+        binding.regErrTV.text = ""
+        // Проверка пользовательского ввода и сбор данных из полей
         if (inputCheck()) {
             var resp: Response<RegisterResponse>
             val user = binding.regLogin.text.toString()
             val pass = binding.regPass.text.toString()
             val email = binding.regEM.text.toString()
 
+            // Запрос к API
             viewModelScope.launch {
                 try {
                     resp = ApiService.retrofitService.register(RegisterReq(user, pass, email))
+                    // Пришел код 200, берем данные и пешем в sharedPref
                     if (resp.code() == 200){
                         val res = resp.body()!!
                         addDataSharedPref(CONSTANCE.JWT, res.token.toString())
                         addDataSharedPref(CONSTANCE.user, res.user.toString())
                         addDataSharedPref(CONSTANCE.user_id, res.user_id.toString())
-                    } else if (resp.code() == 400){
-                        TODO("Нужно реализовать проверку что email не валидный")
-                    } else if (resp.code() == 409) {
-                        TODO("Нужно реализовать проверку что user существует")
                     }
-                } catch (e: ConnectException) {
+                    // Пришел код 400, проверяем что это не валидная почта, сообщаем юзеру
+                    else if (resp.code() == 400){
+                        val err = resp.headers().get("X-Error-Message")
+                        if (err == "invalid_email") {
+                            binding.regEM.error = app.getString(R.string.incorrect_email)
+                        }
+                    }
+                    // Пришел код 409, смотрим ошибку, сообщаем юзеру
+                    else if (resp.code() == 409) {
+                        when (resp.headers().get("X-Error-Message")) {
+                            "incorrect_user" -> {
+                                binding.regLogin.error = app.getString(R.string.user_exists)
+                            }
+                        }
+                    }
+                }
+                // Ловим отсутствие подключения к серверу
+                catch (e: ConnectException) {
                     binding.regErrTV.text = app.getString(R.string.connection_error)
                 }
             }

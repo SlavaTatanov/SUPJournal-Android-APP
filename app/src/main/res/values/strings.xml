@@ -10,4 +10,6 @@
     <string name="incorrect_user">incorrect user</string>
     <string name="incorrect_pass">incorrect password</string>
     <string name="password_not_equal">password mismatch</string>
+    <string name="incorrect_email">incorrect email</string>
+    <string name="user_exists">user exists</string>
 </resources>
