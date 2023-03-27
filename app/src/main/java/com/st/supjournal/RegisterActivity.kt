@@ -39,7 +39,7 @@ class RegisterActivity : AppCompatActivity() {
 
 class RegisterViewModel(application: Application): AndroidViewModel(application) {
     private lateinit var binding: ActivityRegisterBinding
-    private val app = getApplication<Application?>()
+    private val app = getApplication<Application>()
 
     fun init (binding: ActivityRegisterBinding) {
         this.binding = binding

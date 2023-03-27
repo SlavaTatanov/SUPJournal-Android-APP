@@ -85,7 +85,7 @@ class AuthActivity : AppCompatActivity() {
 class AuthViewModel(application: Application): AndroidViewModel(application) {
 
     private lateinit var binding: ActivityAuthBinding
-    private val app = getApplication<Application?>()
+    private val app = getApplication<Application>()
     var authStatus = MutableLiveData(false)
 
     fun init (binding: ActivityAuthBinding) {
@@ -130,7 +130,7 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
                     }
                 } catch (e: ConnectException) {
                     // Ловим ошибку отсутствия соединения с сервером
-                    val err = getApplication<Application?>().getString(R.string.connection_error)
+                    val err = getApplication<Application>().getString(R.string.connection_error)
                     binding.test.text = err
                 } 
             }
@@ -144,7 +144,7 @@ class AuthViewModel(application: Application): AndroidViewModel(application) {
         var flag = true
         for (it in arrayOf(binding.editLogin, binding.editPass)) {
                 if (it.text.isNullOrEmpty()) {
-                    it.error = getApplication<Application?>().getString(R.string.input_error)
+                    it.error = getApplication<Application>().getString(R.string.input_error)
                     flag = false
                 }
             }

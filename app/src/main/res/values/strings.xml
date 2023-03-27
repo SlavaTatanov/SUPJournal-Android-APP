@@ -12,4 +12,6 @@
     <string name="password_not_equal">password mismatch</string>
     <string name="incorrect_email">incorrect email</string>
     <string name="user_exists">user exists</string>
+    <string name="startTraining">start</string>
+    <string name="stopgpx">Stop</string>
 </resources>

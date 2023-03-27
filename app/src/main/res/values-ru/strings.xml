@@ -15,4 +15,6 @@
     <string name="password_not_equal">Пароли не совпадают</string>
     <string name="incorrect_email">Неверный адрес почты</string>
     <string name="user_exists">Пользователь существует</string>
+    <string name="startTraining">Начать</string>
+    <string name="stopgpx">Остановить</string>
 </resources>
